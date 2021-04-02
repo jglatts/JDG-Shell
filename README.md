@@ -1,4 +1,4 @@
------------------------------------- JDG Shell Manual ------------------------------------
+-------------------------------------------------------- JDG Shell Manual --------------------------------------------------------
 
 This is a simple linux shell, written in c, that can be run in either batch more or
 interactive mode. It features file input and output redirection, pipes, background
