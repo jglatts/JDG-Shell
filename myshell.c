@@ -100,7 +100,7 @@ bool run_shell(int argc, char** argv, char** envp) {
 	if (!init_shell(argc, argv)) return false;
 	while (1) {
 		if (!batch) print_prompt();
-		run_parser();
+		if (!run_parser()) continue;
 		run_user_cmd(envp);
 		reset_redirect();
 	}
@@ -113,9 +113,11 @@ bool run_shell(int argc, char** argv, char** envp) {
 	1st step grabs all tokens and gives them to cmd_strings array
 	2nd step checks for any file i/o, background, or parrallel processes 
 */
-void run_parser() {
-	parse_cmd_line();
+bool run_parser() {
+	if (!parse_cmd_line())
+	    return false;
 	check_file_io();
+	return true;
 }
 
 /*
@@ -186,7 +188,7 @@ void reset_redirect() {
 	It then adds them to the cmd_strings array which is where
 	we store the commands to be run 
 */
-void parse_cmd_line() {
+bool parse_cmd_line() {
 	char* token = NULL;
 	char* cmd_buff = NULL;
 	int i = 0;
@@ -195,10 +197,10 @@ void parse_cmd_line() {
 	cmd_count = 0;
 	getline(&cmd_buff, &len, stdin);
 	token = strtok(cmd_buff, " ");
-	if (token == NULL && batch) exit(1);
+	if (!token) return false;
 	while (token != NULL) {
 		// trim the cmd buffer of new line characters
-		if ((strcmp(token, "\n")) == 0) return;
+		if ((strcmp(token, "\n")) == 0) return false;
 		int len;
 		for (len = 0; token[len] != '\n' && token[len] != '\0' && token[len] != ' ' && token[len] != '\t'; ++len);
 		token[len] = '\0';
@@ -210,6 +212,7 @@ void parse_cmd_line() {
 	for (i = cmd_count; i < CMD_LIMIT; ++i) {
 		cmd_strings[i] = NULL;
 	}
+	return true;
 }
 
 /*
@@ -792,4 +795,3 @@ void myshell_env(char** envp) {
 void myshell_exit() {
 	exit(1);
 }
-
